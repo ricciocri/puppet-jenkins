@@ -140,7 +140,7 @@ define jenkins::plugin(
       require => File[$plugin_dir],
       path    => ['/usr/bin', '/usr/sbin', '/bin'],
       onlyif  => "test -f ${plugin_dir}/${name}.jpi -a ! -f ${plugin_dir}/${name}.jpi.pinned",
-      before  => Archive::Download[$plugin],
+      before  => Archive[$plugin],
       user    => $username,
     }
 
@@ -156,22 +156,21 @@ define jenkins::plugin(
       $checksum = true
     }
 
-    archive::download { $plugin:
-      url              => $download_url,
-      src_target       => $plugin_dir,
-      allow_insecure   => true,
-      follow_redirects => true,
-      checksum         => $checksum,
-      digest_string    => $digest_string,
-      digest_type      => $digest_type,
-      user             => $username,
-      proxy_server     => $proxy_server,
-      notify           => Service['jenkins'],
-      require          => File[$plugin_dir],
+    archive { $plugin:
+      ensure          => present,
+      path            => "$plugin_dir/$plugin",
+      source          => $download_url,
+      checksum_verify => $checksum,
+      checksum        => $digest_string,
+      checksum_type   => $digest_type,
+      cleanup         => false,
+      creates         => "$plugin_dir/$plugin",
+      notify          => Service['jenkins'],
+      require         => File[$plugin_dir],
     }
 
     file { "${plugin_dir}/${plugin}" :
-      require => Archive::Download[$plugin],
+      require => Archive[$plugin],
       owner   => $username,
       mode    => '0644',
     }
