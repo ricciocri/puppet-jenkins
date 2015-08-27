@@ -151,17 +151,19 @@ define jenkins::plugin(
     }
 
     if $digest_string == '' {
-      $checksum = false
+      $checksum_verify = false
+      $checksum_digest = 'ffa00'
     } else {
-      $checksum = true
+      $checksum_verify = true
+      $checksum_digest = $digest_string
     }
 
     archive { $plugin:
       ensure          => present,
       path            => "$plugin_dir/$plugin",
       source          => $download_url,
-      checksum_verify => $checksum,
-      checksum        => $digest_string,
+      checksum_verify => $checksum_verify,
+      checksum        => $checksum_digest,
       checksum_type   => $digest_type,
       cleanup         => false,
       creates         => "$plugin_dir/$plugin",
