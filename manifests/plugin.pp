@@ -153,9 +153,11 @@ define jenkins::plugin(
     if $digest_string == '' {
       $checksum_verify = false
       $checksum_digest = 'ffa00'
+      $checksum_type = 'none'
     } else {
       $checksum_verify = true
       $checksum_digest = $digest_string
+      $checksum_type = $digest_type
     }
 
     archive { $plugin:
@@ -164,7 +166,7 @@ define jenkins::plugin(
       source          => $download_url,
       checksum_verify => $checksum_verify,
       checksum        => $checksum_digest,
-      checksum_type   => $digest_type,
+      checksum_type   => $checksum_type,
       cleanup         => false,
       creates         => "$plugin_dir/$plugin",
       notify          => Service['jenkins'],
